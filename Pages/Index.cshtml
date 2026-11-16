@@ -80,9 +80,23 @@
                             <p class="mb-1 small">@item.Description</p>
                         }
                         @if (item.DueDate.HasValue)
-                        {
-                            <small class="text-secondary">📅 Срок: @item.DueDate.Value.ToString("dd.MM.yyyy")</small>
-                        }
+{
+    var today = DateTime.Today;
+    var dueDate = item.DueDate.Value.Date;
+
+    if (!item.IsCompleted && dueDate < today)
+    {
+        <span class="badge bg-danger">🔥 Просрочено: @dueDate.ToString("dd.MM.yyyy")</span>
+    }
+    else if (!item.IsCompleted && dueDate == today)
+    {
+        <span class="badge bg-warning text-dark">⚡ Сегодня: @dueDate.ToString("dd.MM.yyyy")</span>
+    }
+    else
+    {
+        <span class="badge bg-light text-secondary border">📅 Срок: @dueDate.ToString("dd.MM.yyyy")</span>
+    }
+}
                     </div>
 
                     <div class="d-flex gap-2">
