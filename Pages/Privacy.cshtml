@@ -1,0 +1,76 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Мой трекер задач";
+}
+
+<div class="container mt-4" style="max-width: 750px;">
+    <h1 class="mb-4 text-center">📝 Трекер задач</h1>
+
+    <!-- Форма добавления новой задачи -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="post">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <!-- asp-for связывает поле ввода со свойством NewTask.Title из C# -->
+                        <input asp-for="NewTask.Title" class="form-control" placeholder="Что нужно сделать? *" required />
+                    </div>
+                    <div class="col-md-4">
+                        <input asp-for="NewTask.Description" class="form-control" placeholder="Описание (необязательно)" />
+                    </div>
+                    <div class="col-md-3">
+                        <input asp-for="NewTask.DueDate" type="date" class="form-control" />
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3 w-100">Добавить задачу</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Список задач -->
+    @if (Model.TodoList.Count == 0)
+    {
+        <div class="alert alert-info text-center">
+            Задач пока нет. Добавьте первую задачу выше!
+        </div>
+    }
+    else
+    {
+        <ul class="list-group shadow-sm">
+            @foreach (var item in Model.TodoList)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center @(item.IsCompleted ? "bg-light text-muted" : "")">
+                    <div>
+                        <!-- Зачеркиваем текст, если задача выполнена -->
+                        <h5 class="mb-1 @(item.IsCompleted ? "text-decoration-line-through" : "")">
+                            @item.Title
+                        </h5>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <p class="mb-1 small">@item.Description</p>
+                        }
+                        @if (item.DueDate.HasValue)
+                        {
+                            <small class="text-secondary">📅 Срок: @item.DueDate.Value.ToString("dd.MM.yyyy")</small>
+                        }
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <!-- Кнопка смены статуса (вызывает OnPostToggleAsync) -->
+                        <form method="post" asp-page-handler="Toggle" asp-route-id="@item.Id">
+                            <button type="submit" class="btn btn-sm @(item.IsCompleted ? "btn-outline-secondary" : "btn-outline-success")">
+                                @(item.IsCompleted ? "↩ Вернуть" : "✔ Готово")
+                            </button>
+                        </form>
+
+                        <!-- Кнопка удаления (вызывает OnPostDeleteAsync) -->
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑</button>
+                        </form>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>
